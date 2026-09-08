@@ -6,7 +6,11 @@
 
 开发机：ROS 2 Humble，ONNX Runtime 1.28，RTX 3060。
 
-演示视频：[docs/ceshi_demo.mp4](docs/ceshi_demo.mp4)
+演示视频（页面上可以直接播）：
+
+<video src="docs/ceshi_demo.mp4" controls width="720"></video>
+
+播不了就点这个：[docs/ceshi_demo.mp4](docs/ceshi_demo.mp4)
 
 ## 功能
 
