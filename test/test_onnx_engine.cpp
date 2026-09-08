@@ -1,4 +1,4 @@
-// ONNX 封装测试。没有模型文件的用例会 skip,不直接失败。
+// ONNX 测试。没有模型就跳过，不当失败。
 
 #include <gtest/gtest.h>
 
@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "edge_inference_optimizer/onnx_engine.hpp"
+#include "wulun_demo/onnx_engine.hpp"
 
 namespace
 {

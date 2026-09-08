@@ -1,4 +1,4 @@
-# 一句语音的识别结果。
+# 识别结果。
 
 std_msgs/Header header
 string           text

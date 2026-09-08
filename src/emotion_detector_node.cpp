@@ -1,4 +1,4 @@
-// 表情识别,订 /camera/image_raw,发 /emotion_result。
+// 表情识别。订图像，发 /emotion_result。
 
 #include <algorithm>
 #include <memory>
@@ -11,10 +11,10 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
 
-#include "edge_inference_optimizer/latency_probe.hpp"
-#include "edge_inference_optimizer/msg/emotion_result.hpp"
-#include "edge_inference_optimizer/onnx_engine.hpp"
-#include "edge_inference_optimizer/ros_trace.hpp"
+#include "wulun_demo/latency_probe.hpp"
+#include "wulun_demo/msg/emotion_result.hpp"
+#include "wulun_demo/onnx_engine.hpp"
+#include "wulun_demo/ros_trace.hpp"
 
 namespace
 {
@@ -24,7 +24,7 @@ const std::vector<std::string> kFerPlusLabels = {
   "neutral", "happiness", "surprise", "sadness",
   "anger", "disgust", "fear", "contempt"};
 
-/// 取最大的一张正脸。整图送进 FER+ 会给出很自信的噪声。
+/// 取最大的一张脸。整张图送进去会乱认。
 bool detect_largest_face(
   cv::CascadeClassifier & cascade, const cv::Mat & bgr, cv::Rect & out)
 {
@@ -121,7 +121,7 @@ public:
     height_ = static_cast<int>(in.shape[2] < 0 ? 64 : in.shape[2]);
     width_ = static_cast<int>(in.shape[3] < 0 ? 64 : in.shape[3]);
 
-    pub_ = create_publisher<edge_inference_optimizer::msg::EmotionResult>(output_topic_, 10);
+    pub_ = create_publisher<wulun_demo::msg::EmotionResult>(output_topic_, 10);
     sub_ = create_subscription<sensor_msgs::msg::Image>(
       input_topic_, rclcpp::SensorDataQoS(),
       std::bind(&EmotionDetectorNode::on_image, this, std::placeholders::_1));
@@ -157,8 +157,7 @@ private:
       detect_ms = stage.commit();
 
       if (!have_face) {
-        // 没有人脸就没有表情。把基于背景推出来的标签发出去,
-        // 等于往舵机指令流和延迟统计里塞一个编造的读数。
+        // 没脸就别发表情，别拿背景瞎认。
         ++frames_without_face_;
         if ((frames_without_face_ % 60) == 1) {
           RCLCPP_WARN(
@@ -204,7 +203,7 @@ private:
     const auto best = std::max_element(scores.begin(), scores.end());
     const auto idx = static_cast<size_t>(std::distance(scores.begin(), best));
 
-    edge_inference_optimizer::msg::EmotionResult out;
+    wulun_demo::msg::EmotionResult out;
     out.header.stamp = now;
     out.header.frame_id = img->header.frame_id;
     out.emotion = idx < kFerPlusLabels.size() ? kFerPlusLabels[idx] : "unknown";
@@ -271,7 +270,7 @@ private:
 
   std::unique_ptr<eio::OnnxEngine> engine_;
   cv::CascadeClassifier cascade_;
-  rclcpp::Publisher<edge_inference_optimizer::msg::EmotionResult>::SharedPtr pub_;
+  rclcpp::Publisher<wulun_demo::msg::EmotionResult>::SharedPtr pub_;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_;
   std::string input_topic_, output_topic_;
   int channels_ = 1, height_ = 64, width_ = 64;

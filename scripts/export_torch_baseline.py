@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 导出 Whisper encoder 的 TorchScript,给 tier 1 用。
+# 导出 Whisper encoder，给 Python 对比用。
 
 from __future__ import annotations
 

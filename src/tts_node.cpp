@@ -1,15 +1,15 @@
-// TTS,订 /llm_reply,发 /tts_audio。自己不播。
+// 语音合成。订回复，发 /tts_audio，自己不播。
 
 #include <memory>
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "edge_inference_optimizer/latency_probe.hpp"
-#include "edge_inference_optimizer/msg/audio_chunk.hpp"
-#include "edge_inference_optimizer/msg/llm_reply.hpp"
-#include "edge_inference_optimizer/piper_tts.hpp"
-#include "edge_inference_optimizer/ros_trace.hpp"
+#include "wulun_demo/latency_probe.hpp"
+#include "wulun_demo/msg/audio_chunk.hpp"
+#include "wulun_demo/msg/llm_reply.hpp"
+#include "wulun_demo/piper_tts.hpp"
+#include "wulun_demo/ros_trace.hpp"
 
 class TtsNode : public rclcpp::Node
 {
@@ -42,8 +42,8 @@ public:
 
     tts_ = std::make_unique<eio::PiperTts>(std::move(o));
 
-    pub_ = create_publisher<edge_inference_optimizer::msg::AudioChunk>("/tts_audio", 5);
-    sub_ = create_subscription<edge_inference_optimizer::msg::LlmReply>(
+    pub_ = create_publisher<wulun_demo::msg::AudioChunk>("/tts_audio", 5);
+    sub_ = create_subscription<wulun_demo::msg::LlmReply>(
       "/llm_reply", 10,
       std::bind(&TtsNode::on_reply, this, std::placeholders::_1));
 
@@ -51,7 +51,7 @@ public:
   }
 
 private:
-  void on_reply(const edge_inference_optimizer::msg::LlmReply::ConstSharedPtr & msg)
+  void on_reply(const wulun_demo::msg::LlmReply::ConstSharedPtr & msg)
   {
     if (msg->reply_text.empty()) { return; }
 
@@ -67,7 +67,7 @@ private:
       return;
     }
 
-    edge_inference_optimizer::msg::AudioChunk out;
+    wulun_demo::msg::AudioChunk out;
     out.header.stamp = this->now();
     out.header.frame_id = "tts";
     out.samples = a.samples;
@@ -100,8 +100,8 @@ private:
   }
 
   std::unique_ptr<eio::PiperTts> tts_;
-  rclcpp::Publisher<edge_inference_optimizer::msg::AudioChunk>::SharedPtr pub_;
-  rclcpp::Subscription<edge_inference_optimizer::msg::LlmReply>::SharedPtr sub_;
+  rclcpp::Publisher<wulun_demo::msg::AudioChunk>::SharedPtr pub_;
+  rclcpp::Subscription<wulun_demo::msg::LlmReply>::SharedPtr sub_;
   std::string dump_dir_;
   uint64_t seq_ = 0;
 };

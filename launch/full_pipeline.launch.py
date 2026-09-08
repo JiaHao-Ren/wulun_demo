@@ -1,4 +1,4 @@
-# 视觉链路 + 延迟报告。
+# 只跑表情和延迟打印。
 import os
 
 from ament_index_python.packages import get_package_share_directory
@@ -9,7 +9,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    pkg_share = get_package_share_directory('edge_inference_optimizer')
+    pkg_share = get_package_share_directory('wulun_demo')
     pipeline_cfg = os.path.join(pkg_share, 'config', 'pipeline.yaml')
     servo_cfg = os.path.join(pkg_share, 'config', 'servo_mapping.yaml')
 
@@ -33,7 +33,7 @@ def generate_launch_description():
     ]
 
     camera = Node(
-        package='edge_inference_optimizer',
+        package='wulun_demo',
         executable='camera_node',
         name='camera_node',
         output='screen',
@@ -44,7 +44,7 @@ def generate_launch_description():
     )
 
     detector = Node(
-        package='edge_inference_optimizer',
+        package='wulun_demo',
         executable='emotion_detector_node',
         name='emotion_detector',
         output='screen',
@@ -56,7 +56,7 @@ def generate_launch_description():
     )
 
     servo = Node(
-        package='edge_inference_optimizer',
+        package='wulun_demo',
         executable='servo_mapper_node',
         name='servo_mapper',
         output='screen',
@@ -64,7 +64,7 @@ def generate_launch_description():
     )
 
     reporter = Node(
-        package='edge_inference_optimizer',
+        package='wulun_demo',
         executable='latency_reporter_node',
         name='latency_reporter',
         output='screen',

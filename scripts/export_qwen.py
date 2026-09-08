@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 导出 Qwen 词表和 merge 表给 C++ 用。
+# 导出 Qwen 词表，给 C++ 用。
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-# 一帧画面的表情分类。
+# 表情结果。
 
 std_msgs/Header header
 string           emotion

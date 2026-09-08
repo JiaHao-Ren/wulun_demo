@@ -1,10 +1,10 @@
-// 文本进、WAV 出。没声卡也能查 TTS。
+// 文字合成 wav，没音箱也能听文件。
 
 #include <iomanip>
 #include <iostream>
 #include <string>
 
-#include "edge_inference_optimizer/piper_tts.hpp"
+#include "wulun_demo/piper_tts.hpp"
 
 int main(int argc, char ** argv)
 {

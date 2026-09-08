@@ -1,4 +1,4 @@
-// 播 /tts_audio。跟合成拆开,没声卡也能跑完整条链路。
+// 播语音。跟合成分开，没音箱也能跑。
 
 #include <atomic>
 #include <memory>
@@ -8,8 +8,8 @@
 #include "portaudio.h"
 #include "rclcpp/rclcpp.hpp"
 
-#include "edge_inference_optimizer/latency_probe.hpp"
-#include "edge_inference_optimizer/msg/audio_chunk.hpp"
+#include "wulun_demo/latency_probe.hpp"
+#include "wulun_demo/msg/audio_chunk.hpp"
 
 class AudioPlaybackNode : public rclcpp::Node
 {
@@ -34,7 +34,7 @@ public:
         "可给 tts_node 设置 dump_dir 把音频存成文件检查。");
     }
 
-    sub_ = create_subscription<edge_inference_optimizer::msg::AudioChunk>(
+    sub_ = create_subscription<wulun_demo::msg::AudioChunk>(
       "/tts_audio", 5,
       std::bind(&AudioPlaybackNode::on_audio, this, std::placeholders::_1));
     RCLCPP_INFO(get_logger(), "waiting for audio on /tts_audio");
@@ -78,7 +78,7 @@ private:
     return true;
   }
 
-  void on_audio(const edge_inference_optimizer::msg::AudioChunk::ConstSharedPtr & msg)
+  void on_audio(const wulun_demo::msg::AudioChunk::ConstSharedPtr & msg)
   {
     if (msg->samples.empty()) { return; }
     if (!ensure_stream(static_cast<int>(msg->sample_rate))) {
@@ -101,7 +101,7 @@ private:
     RCLCPP_INFO(get_logger(), "played %.2f s (blocked %.0f ms)", dur, ms);
   }
 
-  rclcpp::Subscription<edge_inference_optimizer::msg::AudioChunk>::SharedPtr sub_;
+  rclcpp::Subscription<wulun_demo::msg::AudioChunk>::SharedPtr sub_;
   PaStream * stream_ = nullptr;
   int open_rate_ = 0;
   bool pa_ready_ = false;

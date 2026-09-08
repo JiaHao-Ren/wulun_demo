@@ -1,4 +1,4 @@
-// 四档对比里的 C++ 侧(tier 3/4)。参数必须和 scripts/benchmark_python.py 一致。
+// C++ 测延迟。参数要和 benchmark_python.py 一样。
 
 #include <algorithm>
 #include <cstring>
@@ -11,8 +11,8 @@
 #include <thread>
 #include <vector>
 
-#include "edge_inference_optimizer/latency_probe.hpp"
-#include "edge_inference_optimizer/onnx_engine.hpp"
+#include "wulun_demo/latency_probe.hpp"
+#include "wulun_demo/onnx_engine.hpp"
 
 namespace
 {

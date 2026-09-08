@@ -1,4 +1,4 @@
-#include "edge_inference_optimizer/piper_tts.hpp"
+#include "wulun_demo/piper_tts.hpp"
 
 #include <dlfcn.h>
 
@@ -6,7 +6,7 @@
 #include <fstream>
 #include <stdexcept>
 
-#include "edge_inference_optimizer/latency_probe.hpp"
+#include "wulun_demo/latency_probe.hpp"
 
 namespace eio
 {

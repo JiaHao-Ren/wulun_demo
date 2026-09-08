@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 导出 Whisper ONNX、mel 滤波和词表。
+# 导出 Whisper 模型和词表。
 
 from __future__ import annotations
 

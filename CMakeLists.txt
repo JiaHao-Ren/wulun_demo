@@ -1,12 +1,12 @@
-# 上限卡在 3.26: Humble 还在用 FindPythonInterp, 3.27+ 会配置失败。
+# cmake 别超过 3.26，Humble 会配失败。
 cmake_minimum_required(VERSION 3.16...3.26)
 
-# 显式 OLD,避免每次 configure 打 CMP0148 警告。
+# 关掉 CMP0148 警告。
 if(POLICY CMP0148)
   cmake_policy(SET CMP0148 OLD)
 endif()
-# 消息生成会出 C 文件,所以语言列表里要有 C。
-project(edge_inference_optimizer VERSION 0.1.0 LANGUAGES C CXX)
+# 消息生成会出 C 文件。
+project(wulun_demo VERSION 0.1.0 LANGUAGES C CXX)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
@@ -16,12 +16,12 @@ endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 
-  # Humble 生成的消息头没 include cstdint, GCC 15 会编不过。只给 CXX 强制带上。
+  # Humble 消息头缺 cstdint，GCC 15 编不过，只给 C++ 加上。
   add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:SHELL:-include cstdint>")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
-  # 空的 CMAKE_BUILD_TYPE 会落到 -O0,测延迟没意义。
+  # 不设的话会变成 Debug，测延迟没意义。
   set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
 endif()
 
@@ -32,7 +32,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
-# ONNX Runtime: 默认跟 conda 环境走,系统里的 ROS1 不要碰。
+# ONNX 从 conda 里找，别碰到系统 ROS1。
 if(NOT ONNXRUNTIME_ROOT)
   if(DEFINED ENV{ONNXRUNTIME_ROOT})
     set(ONNXRUNTIME_ROOT $ENV{ONNXRUNTIME_ROOT})
@@ -75,7 +75,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   DEPENDENCIES std_msgs builtin_interfaces
 )
 
-# 核心库不依赖 ROS。OpenCV 给 Whisper STFT 和人脸检测用。
+# 核心库不依赖 ROS。
 find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio objdetect)
 
 add_library(eio_core SHARED
@@ -93,7 +93,7 @@ target_include_directories(eio_core PUBLIC
   ${ONNXRUNTIME_INCLUDE_DIR}
   ${OpenCV_INCLUDE_DIRS}
 )
-# piper 运行时 dlopen libespeak-ng
+# TTS 运行时加载 espeak。
 target_link_libraries(eio_core PUBLIC ${ONNXRUNTIME_LIBRARY} ${OpenCV_LIBS} ${CMAKE_DL_LIBS})
 
 install(TARGETS eio_core
@@ -120,7 +120,7 @@ install(TARGETS tts_cli DESTINATION lib/${PROJECT_NAME})
 
 find_package(cv_bridge REQUIRED)
 
-# PortAudio,跟 ONNX 一样从 conda 前缀找。
+# PortAudio 也从 conda 里找。
 find_path(PORTAUDIO_INCLUDE_DIR portaudio.h HINTS ${ONNXRUNTIME_ROOT}/include)
 find_library(PORTAUDIO_LIBRARY NAMES portaudio HINTS ${ONNXRUNTIME_ROOT}/lib)
 if(NOT PORTAUDIO_INCLUDE_DIR OR NOT PORTAUDIO_LIBRARY)
@@ -134,7 +134,7 @@ rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typ
 
 function(eio_add_node target_name source)
   add_executable(${target_name} ${source})
-  # 不用 keyword 形式,ament_target_dependencies 内部也是无关键字链接。
+  # 链接写法要和 ament 一致。
   target_link_libraries(${target_name} eio_core "${cpp_typesupport_target}")
   ament_target_dependencies(${target_name}
     rclcpp std_msgs sensor_msgs builtin_interfaces ${ARGN})
@@ -167,7 +167,7 @@ ament_export_include_directories(include)
 ament_export_libraries(eio_core)
 
 if(BUILD_TESTING)
-  # 不用 ament_add_gtest: Humble 自带的 gtest 在 GCC 15 编不过。
+  # 不用 ament 自带的 gtest，GCC 15 编不过。
   find_package(GTest REQUIRED)
   enable_testing()
 

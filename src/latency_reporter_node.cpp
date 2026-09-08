@@ -1,4 +1,4 @@
-// 打延迟瀑布图。订两条链路的尾巴,自己不发 topic。
+// 打印各段延迟。
 
 #include <algorithm>
 #include <iomanip>
@@ -10,11 +10,11 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "edge_inference_optimizer/latency_probe.hpp"
-#include "edge_inference_optimizer/msg/asr_result.hpp"
-#include "edge_inference_optimizer/msg/audio_chunk.hpp"
-#include "edge_inference_optimizer/msg/latency_trace.hpp"
-#include "edge_inference_optimizer/msg/servo_command.hpp"
+#include "wulun_demo/latency_probe.hpp"
+#include "wulun_demo/msg/asr_result.hpp"
+#include "wulun_demo/msg/audio_chunk.hpp"
+#include "wulun_demo/msg/latency_trace.hpp"
+#include "wulun_demo/msg/servo_command.hpp"
 
 namespace
 {
@@ -55,24 +55,24 @@ public:
     const auto period = declare_parameter<double>("report_period_s", 5.0);
     min_samples_ = declare_parameter<int>("min_samples", 10);
 
-    sub_servo_ = create_subscription<edge_inference_optimizer::msg::ServoCommand>(
+    sub_servo_ = create_subscription<wulun_demo::msg::ServoCommand>(
       "/servo_commands", 50,
-      [this](edge_inference_optimizer::msg::ServoCommand::ConstSharedPtr m) {
+      [this](wulun_demo::msg::ServoCommand::ConstSharedPtr m) {
         if (!m->trace.stages.empty()) { absorb("vision", m->trace); }
       });
 
     // 订对话链路尾巴。同时订 /asr_result 会把同一轮记两次。
-    sub_tts_ = create_subscription<edge_inference_optimizer::msg::AudioChunk>(
+    sub_tts_ = create_subscription<wulun_demo::msg::AudioChunk>(
       "/tts_audio", 20,
-      [this](edge_inference_optimizer::msg::AudioChunk::ConstSharedPtr m) {
+      [this](wulun_demo::msg::AudioChunk::ConstSharedPtr m) {
         if (!m->trace.stages.empty()) { absorb("dialogue", m->trace); }
       });
 
     // 没有 TTS 时可以只看 ASR。
     if (declare_parameter<bool>("report_asr_only", false)) {
-      sub_asr_ = create_subscription<edge_inference_optimizer::msg::AsrResult>(
+      sub_asr_ = create_subscription<wulun_demo::msg::AsrResult>(
         "/asr_result", 50,
-        [this](edge_inference_optimizer::msg::AsrResult::ConstSharedPtr m) {
+        [this](wulun_demo::msg::AsrResult::ConstSharedPtr m) {
           if (!m->trace.stages.empty()) { absorb("dialogue", m->trace); }
         });
     }
@@ -86,7 +86,7 @@ public:
   }
 
 private:
-  void absorb(const std::string & branch, const edge_inference_optimizer::msg::LatencyTrace & t)
+  void absorb(const std::string & branch, const wulun_demo::msg::LatencyTrace & t)
   {
     auto & b = branches_[branch];
     for (const auto & s : t.stages) {
@@ -172,9 +172,9 @@ private:
   }
 
   std::map<std::string, Branch> branches_;
-  rclcpp::Subscription<edge_inference_optimizer::msg::ServoCommand>::SharedPtr sub_servo_;
-  rclcpp::Subscription<edge_inference_optimizer::msg::AsrResult>::SharedPtr sub_asr_;
-  rclcpp::Subscription<edge_inference_optimizer::msg::AudioChunk>::SharedPtr sub_tts_;
+  rclcpp::Subscription<wulun_demo::msg::ServoCommand>::SharedPtr sub_servo_;
+  rclcpp::Subscription<wulun_demo::msg::AsrResult>::SharedPtr sub_asr_;
+  rclcpp::Subscription<wulun_demo::msg::AudioChunk>::SharedPtr sub_tts_;
   rclcpp::TimerBase::SharedPtr timer_;
   int min_samples_ = 10;
 };

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 四档对比的 Python 侧(tier 1/2)。线程数必须和 benchmark_cpp 一致。
+# Python 测延迟。线程数要和 C++ 那边一样。
 
 from __future__ import annotations
 

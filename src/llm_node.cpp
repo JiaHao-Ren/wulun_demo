@@ -1,15 +1,15 @@
-// 本地 Qwen 生成回复,订 /asr_result,发 /llm_reply。
+// 生成回复。订识别结果，发 /llm_reply。
 
 #include <memory>
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "edge_inference_optimizer/latency_probe.hpp"
-#include "edge_inference_optimizer/msg/asr_result.hpp"
-#include "edge_inference_optimizer/msg/llm_reply.hpp"
-#include "edge_inference_optimizer/qwen_chat.hpp"
-#include "edge_inference_optimizer/ros_trace.hpp"
+#include "wulun_demo/latency_probe.hpp"
+#include "wulun_demo/msg/asr_result.hpp"
+#include "wulun_demo/msg/llm_reply.hpp"
+#include "wulun_demo/qwen_chat.hpp"
+#include "wulun_demo/ros_trace.hpp"
 
 class LlmNode : public rclcpp::Node
 {
@@ -42,8 +42,8 @@ public:
     chat_ = std::make_unique<eio::QwenChat>(std::move(o));
     RCLCPP_INFO(get_logger(), "%s", chat_->engine().describe().substr(0, 150).c_str());
 
-    pub_ = create_publisher<edge_inference_optimizer::msg::LlmReply>("/llm_reply", 10);
-    sub_ = create_subscription<edge_inference_optimizer::msg::AsrResult>(
+    pub_ = create_publisher<wulun_demo::msg::LlmReply>("/llm_reply", 10);
+    sub_ = create_subscription<wulun_demo::msg::AsrResult>(
       "/asr_result", 10,
       std::bind(&LlmNode::on_transcript, this, std::placeholders::_1));
 
@@ -51,13 +51,12 @@ public:
   }
 
 private:
-  void on_transcript(const edge_inference_optimizer::msg::AsrResult::ConstSharedPtr & msg)
+  void on_transcript(const wulun_demo::msg::AsrResult::ConstSharedPtr & msg)
   {
     const std::string text = trim(msg->text);
     if (text.empty()) { return; }
 
-    // Whisper 收到静音或噪声时会输出这些标记,拿它们去生成回复
-    // 等于让机器人回应根本没人说过的话。
+    // 这些是静音/噪声标记，别拿去生成回复。
     for (const char * junk : {"[MUSIC PLAYING]", "(upbeat music)", "[Music]", "(laughs)"}) {
       if (text.find(junk) != std::string::npos) {
         RCLCPP_WARN(get_logger(), "ignoring ASR artefact: '%s'", text.c_str());
@@ -76,7 +75,7 @@ private:
       return;
     }
 
-    edge_inference_optimizer::msg::LlmReply out;
+    wulun_demo::msg::LlmReply out;
     out.header.stamp = this->now();
     out.header.frame_id = "dialogue";
     out.user_text = text;
@@ -112,8 +111,8 @@ private:
   }
 
   std::unique_ptr<eio::QwenChat> chat_;
-  rclcpp::Publisher<edge_inference_optimizer::msg::LlmReply>::SharedPtr pub_;
-  rclcpp::Subscription<edge_inference_optimizer::msg::AsrResult>::SharedPtr sub_;
+  rclcpp::Publisher<wulun_demo::msg::LlmReply>::SharedPtr pub_;
+  rclcpp::Subscription<wulun_demo::msg::AsrResult>::SharedPtr sub_;
 };
 
 int main(int argc, char ** argv)

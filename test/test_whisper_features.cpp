@@ -1,4 +1,4 @@
-// 对照参考 log-mel,检查 C++ 前端数值。
+// 检查音频前端数值对不对。
 
 #include <gtest/gtest.h>
 
@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "edge_inference_optimizer/whisper_asr.hpp"
+#include "wulun_demo/whisper_asr.hpp"
 
 namespace
 {

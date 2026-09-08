@@ -1,4 +1,4 @@
-# 延迟里的一段。is_compute 为 false 表示在等，不是在算。
+# 延迟里的一段。is_compute 为 false 就是在等。
 
 string  name
 float64 start_ms

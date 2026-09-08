@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 把 bench.jsonl 收成对比表。
+# 把测出来的 jsonl 收成表。
 
 from __future__ import annotations
 

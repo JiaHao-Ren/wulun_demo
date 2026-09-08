@@ -1,4 +1,4 @@
-#include "edge_inference_optimizer/latency_probe.hpp"
+#include "wulun_demo/latency_probe.hpp"
 
 #include <algorithm>
 #include <cmath>

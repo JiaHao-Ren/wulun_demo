@@ -1,4 +1,4 @@
-# 一轮生成回复。prefill 和 decode 分开记。
+# 生成的回复。
 
 std_msgs/Header header
 string           user_text

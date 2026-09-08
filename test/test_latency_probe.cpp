@@ -1,4 +1,4 @@
-// LatencyStats / LatencyTrace 的基本行为。
+// 延迟统计测试。
 
 #include <gtest/gtest.h>
 
@@ -6,7 +6,7 @@
 #include <thread>
 #include <vector>
 
-#include "edge_inference_optimizer/latency_probe.hpp"
+#include "wulun_demo/latency_probe.hpp"
 
 using eio::LatencyStats;
 using eio::LatencyTrace;

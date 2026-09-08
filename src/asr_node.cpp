@@ -1,4 +1,4 @@
-// ASR 节点。订 /utterance,发 /asr_result。encoder / decoder 分开计时。
+// 语音转文字。订 /utterance，发 /asr_result。
 
 #include <memory>
 #include <string>
@@ -6,11 +6,11 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "edge_inference_optimizer/latency_probe.hpp"
-#include "edge_inference_optimizer/msg/asr_result.hpp"
-#include "edge_inference_optimizer/msg/audio_chunk.hpp"
-#include "edge_inference_optimizer/ros_trace.hpp"
-#include "edge_inference_optimizer/whisper_asr.hpp"
+#include "wulun_demo/latency_probe.hpp"
+#include "wulun_demo/msg/asr_result.hpp"
+#include "wulun_demo/msg/audio_chunk.hpp"
+#include "wulun_demo/ros_trace.hpp"
+#include "wulun_demo/whisper_asr.hpp"
 
 class AsrNode : public rclcpp::Node
 {
@@ -50,8 +50,8 @@ public:
     asr_ = std::make_unique<eio::WhisperAsr>(std::move(o));
     RCLCPP_INFO(get_logger(), "encoder: %s", asr_->encoder().describe().c_str());
 
-    pub_ = create_publisher<edge_inference_optimizer::msg::AsrResult>("/asr_result", 10);
-    sub_ = create_subscription<edge_inference_optimizer::msg::AudioChunk>(
+    pub_ = create_publisher<wulun_demo::msg::AsrResult>("/asr_result", 10);
+    sub_ = create_subscription<wulun_demo::msg::AudioChunk>(
       "/utterance", 5,
       std::bind(&AsrNode::on_utterance, this, std::placeholders::_1));
 
@@ -59,7 +59,7 @@ public:
   }
 
 private:
-  void on_utterance(const edge_inference_optimizer::msg::AudioChunk::ConstSharedPtr & msg)
+  void on_utterance(const wulun_demo::msg::AudioChunk::ConstSharedPtr & msg)
   {
     if (msg->samples.empty()) { return; }
 
@@ -79,7 +79,7 @@ private:
       : 0.0;
     const double infer_ms = res.preprocess_ms + res.encoder_ms + res.decoder_ms;
 
-    edge_inference_optimizer::msg::AsrResult out;
+    wulun_demo::msg::AsrResult out;
     out.header.stamp = now;
     out.header.frame_id = "utterance";
     out.text = res.text;
@@ -91,7 +91,7 @@ private:
     out.inference_ms = static_cast<float>(infer_ms);
     out.rtf = audio_s > 0.0 ? static_cast<float>(infer_ms / (audio_s * 1000.0)) : 0.0f;
 
-    // endpoint_wait 在上游已经发生,这里按配置补进瀑布图,否则对话延迟会被低估。
+    // 等你说完的时间在前面已经发生了，这里补进延迟表，不然会看起来很快。
     out.trace.trace_id = msg->trace_id;
     out.trace.trace_start = msg->header.stamp;
     out.trace.total_ms = 0.0;
@@ -113,8 +113,8 @@ private:
   }
 
   std::unique_ptr<eio::WhisperAsr> asr_;
-  rclcpp::Publisher<edge_inference_optimizer::msg::AsrResult>::SharedPtr pub_;
-  rclcpp::Subscription<edge_inference_optimizer::msg::AudioChunk>::SharedPtr sub_;
+  rclcpp::Publisher<wulun_demo::msg::AsrResult>::SharedPtr pub_;
+  rclcpp::Subscription<wulun_demo::msg::AudioChunk>::SharedPtr sub_;
   double endpoint_wait_ms_ = 800.0;
 };
 

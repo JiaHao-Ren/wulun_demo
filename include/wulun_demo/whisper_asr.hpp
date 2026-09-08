@@ -1,19 +1,19 @@
-// Whisper ASR: log-mel、encoder、带 KV cache 的解码。
+// Whisper 语音识别。
 
-#ifndef EDGE_INFERENCE_OPTIMIZER__WHISPER_ASR_HPP_
-#define EDGE_INFERENCE_OPTIMIZER__WHISPER_ASR_HPP_
+#ifndef WULUN_DEMO__WHISPER_ASR_HPP_
+#define WULUN_DEMO__WHISPER_ASR_HPP_
 
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "edge_inference_optimizer/onnx_engine.hpp"
+#include "wulun_demo/onnx_engine.hpp"
 
 namespace eio
 {
 
-/// Whisper 固定的音频参数,不可调:导出的 encoder 输入形状里写死了 3000
+/// Whisper 音频参数，encoder 输入长度是写死的。
 struct WhisperAudioSpec
 {
   static constexpr int kSampleRate = 16000;
@@ -28,10 +28,10 @@ struct WhisperAudioSpec
 class MelExtractor
 {
 public:
-  /// 加载 mel 滤波。文件不对直接抛,别默默用全零。
+  /// 加载 mel 滤波。文件不对就报错。
   explicit MelExtractor(const std::string & mel_filters_path);
 
-  /// 补齐或截断到 30 秒,返回 80*3000 个 float(mel 优先序)
+  /// 补齐或截到 30 秒。
   std::vector<float> compute(const std::vector<float> & pcm) const;
 
   const std::vector<float> & filters() const { return filters_; }
@@ -61,7 +61,7 @@ public:
   {
     std::string encoder_path;
     std::string decoder_path;
-    /// decoder_with_past_model.onnx。为空时每步都重算整个前缀,复杂度 O(n^2)
+    /// 带缓存的 decoder。空着就每步重算。
     std::string decoder_with_past_path;
     std::string mel_filters_path;
     std::string vocab_path;
@@ -69,15 +69,14 @@ public:
     int threads = 1;
     int max_tokens = 128;
 
-    /// 强制语言。短句(1-3 秒)上 Whisper 自己检测语言不可靠,
-    /// 而且指定 <|en|> 处理中文音频时它会「翻译」而不是报错。
+    /// 语言写死。短句自己检测不准；中文别标成英文，会翻译。
     int64_t language_token = 50259;
 
-    /// <|startofprev|> 后的引导。中文用简体提示避免简繁混用。
+    /// 中文用简体提示，免得简繁混着出。
     std::vector<int64_t> initial_prompt_tokens;
   };
 
-  /// 预编码好的简体中文引导词:「以下是普通话的对话内容,请使用简体中文转写。」
+  /// 简体中文提示词。
   static const std::vector<int64_t> & simplified_chinese_prompt();
 
   struct Result
@@ -92,13 +91,12 @@ public:
 
   explicit WhisperAsr(Options opts);
 
-  /// 转写一段话,pcm 必须是 16 kHz 单声道
+  /// 转写。pcm 要 16 kHz 单声道。
   Result transcribe(const std::vector<float> & pcm);
 
   const OnnxEngine & encoder() const { return *encoder_; }
 
-  // Whisper 的强制前缀。缺 <|notimestamps|> 会让模型输出时间戳 token,
-  // 这些 token 在这里解码为空串,看上去像模型坏了。
+  // 前缀里要带 <|notimestamps|>，不然会出一堆空 token。
   static constexpr int64_t kSot = 50258;
   static constexpr int64_t kEn = 50259;
   static constexpr int64_t kZh = 50260;
@@ -122,4 +120,4 @@ private:
 
 }  // namespace eio
 
-#endif  // EDGE_INFERENCE_OPTIMIZER__WHISPER_ASR_HPP_
+#endif  // WULUN_DEMO__WHISPER_ASR_HPP_

@@ -1,4 +1,4 @@
-#include "edge_inference_optimizer/bpe_tokenizer.hpp"
+#include "wulun_demo/bpe_tokenizer.hpp"
 
 #include <fstream>
 #include <limits>
@@ -92,7 +92,7 @@ std::string BpeTokenizer::decode(const std::vector<int64_t> & ids) const
 
 std::vector<std::string> BpeTokenizer::split_words(const std::string & text)
 {
-  // 汉字必须成片切,按字切开 BPE 合并不了词,模型照样答、只是质量变差。
+  // 汉字要连着切，一个字一个字切开会分错，模型还是会答。
   std::vector<std::string> out;
   size_t i = 0;
   while (i < text.size()) {

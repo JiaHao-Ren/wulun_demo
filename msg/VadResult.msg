@@ -1,4 +1,4 @@
-# 一帧音频的语音活动。utterance_end 表示判定人说完了。
+# 有没有在说话。utterance_end 表示人说完了。
 
 std_msgs/Header header
 bool             is_speech

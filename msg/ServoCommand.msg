@@ -1,4 +1,4 @@
-# 面部舵机目标角度。
+# 舵机目标角度。
 
 std_msgs/Header header
 string[]         joint_names

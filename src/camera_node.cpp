@@ -1,4 +1,4 @@
-// 发 /camera/image_raw。目录、视频、摄像头都能当输入。
+// 发图像。图片目录、视频、摄像头都行。
 
 #include <filesystem>
 #include <memory>

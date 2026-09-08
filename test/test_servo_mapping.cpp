@@ -1,4 +1,4 @@
-// 舵机映射:限位、速度、收敛。
+// 舵机角度、限位、速度。
 
 #include <gtest/gtest.h>
 
@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "edge_inference_optimizer/servo_mapper.hpp"
+#include "wulun_demo/servo_mapper.hpp"
 
 using eio::JointLimit;
 using eio::ServoMapper;

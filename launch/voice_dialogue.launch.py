@@ -1,4 +1,4 @@
-# 语音对话链路。
+# 只跑语音对话。
 import os
 
 from ament_index_python.packages import get_package_share_directory
@@ -10,7 +10,7 @@ from launch_ros.actions import Node
 
 
 def _espeak_paths():
-    # piper-phonemize 自带的 espeak-ng，文件名带 hash，启动时再找。
+    # espeak 在 piper 包里，启动时再找路径。
     try:
         import piper_phonemize
         pkg = os.path.dirname(piper_phonemize.__file__)
@@ -38,7 +38,7 @@ def launch_setup(context, *args, **kwargs):
             'libespeak-ng not found. Install it with:  pip install piper-phonemize')
 
     capture = Node(
-        package='edge_inference_optimizer', executable='audio_capture_node',
+        package='wulun_demo', executable='audio_capture_node',
         name='audio_capture', output='screen',
         parameters=[{
             'source': source,
@@ -52,7 +52,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     vad = Node(
-        package='edge_inference_optimizer', executable='vad_node',
+        package='wulun_demo', executable='vad_node',
         name='vad_node', output='screen',
         parameters=[{
             'model_path': os.path.join(models, 'silero_vad.onnx'),
@@ -64,7 +64,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     asr = Node(
-        package='edge_inference_optimizer', executable='asr_node',
+        package='wulun_demo', executable='asr_node',
         name='asr_node', output='screen',
         parameters=[{
             'model_dir': os.path.join(models, 'whisper_base_onnx'),
@@ -78,7 +78,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     llm = Node(
-        package='edge_inference_optimizer', executable='llm_node',
+        package='wulun_demo', executable='llm_node',
         name='llm_node', output='screen',
         parameters=[{
             'model_dir': os.path.join(models, 'qwen05b_onnx'),
@@ -90,7 +90,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     tts = Node(
-        package='edge_inference_optimizer', executable='tts_node',
+        package='wulun_demo', executable='tts_node',
         name='tts_node', output='screen',
         parameters=[{
             'model_dir': os.path.join(models, 'piper_zh'),
@@ -104,13 +104,13 @@ def launch_setup(context, *args, **kwargs):
     )
 
     playback = Node(
-        package='edge_inference_optimizer', executable='audio_playback_node',
+        package='wulun_demo', executable='audio_playback_node',
         name='audio_playback', output='screen',
         condition=IfCondition(LaunchConfiguration('play_audio')),
     )
 
     reporter = Node(
-        package='edge_inference_optimizer', executable='latency_reporter_node',
+        package='wulun_demo', executable='latency_reporter_node',
         name='latency_reporter', output='screen',
         parameters=[{
             'report_period_s': LaunchConfiguration('report_period_s'),

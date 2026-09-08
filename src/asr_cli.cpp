@@ -1,4 +1,4 @@
-// 不经过 ROS 的转写工具,用来单独查 ASR。
+// 单独测转写，不走 ROS。
 
 #include <fstream>
 #include <iomanip>
@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "edge_inference_optimizer/whisper_asr.hpp"
+#include "wulun_demo/whisper_asr.hpp"
 
 namespace
 {

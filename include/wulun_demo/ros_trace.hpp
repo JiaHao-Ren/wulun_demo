@@ -1,24 +1,24 @@
-// LatencyTrace 和 ROS 消息的互转。
+// 延迟记录转成 ROS 消息。
 
-#ifndef EDGE_INFERENCE_OPTIMIZER__ROS_TRACE_HPP_
-#define EDGE_INFERENCE_OPTIMIZER__ROS_TRACE_HPP_
+#ifndef WULUN_DEMO__ROS_TRACE_HPP_
+#define WULUN_DEMO__ROS_TRACE_HPP_
 
 #include <string>
 #include <vector>
 
 #include "builtin_interfaces/msg/time.hpp"
-#include "edge_inference_optimizer/latency_probe.hpp"
-#include "edge_inference_optimizer/msg/latency_trace.hpp"
-#include "edge_inference_optimizer/msg/stage_timing.hpp"
+#include "wulun_demo/latency_probe.hpp"
+#include "wulun_demo/msg/latency_trace.hpp"
+#include "wulun_demo/msg/stage_timing.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace eio
 {
 
-using LatencyTraceMsg = edge_inference_optimizer::msg::LatencyTrace;
-using StageTimingMsg = edge_inference_optimizer::msg::StageTiming;
+using LatencyTraceMsg = wulun_demo::msg::LatencyTrace;
+using StageTimingMsg = wulun_demo::msg::StageTiming;
 
-/// 序列化成消息。各段偏移相对起点存储,跨进程后仍然可比。
+/// 转成 ROS 消息。
 inline LatencyTraceMsg to_msg(const LatencyTrace & t, const rclcpp::Time & started)
 {
   LatencyTraceMsg m;
@@ -37,7 +37,7 @@ inline LatencyTraceMsg to_msg(const LatencyTrace & t, const rclcpp::Time & start
   return m;
 }
 
-/// 往已序列化的 trace 追加一段(偏移单位:毫秒)
+/// 再加一段，单位毫秒。
 inline void append_stage(
   LatencyTraceMsg & m, const std::string & name,
   double start_ms, double duration_ms, bool is_compute = true)
@@ -52,7 +52,7 @@ inline void append_stage(
   if (end > m.total_ms) { m.total_ms = end; }
 }
 
-/// header 戳到现在的毫秒。未来戳当 0,避免画出负传输时间。
+/// 从时间戳到现在过了多少毫秒。时间乱了就当 0。
 inline double transport_ms(const rclcpp::Time & stamp, const rclcpp::Time & now)
 {
   const double ms = (now - stamp).nanoseconds() / 1.0e6;
@@ -61,4 +61,4 @@ inline double transport_ms(const rclcpp::Time & stamp, const rclcpp::Time & now)
 
 }  // namespace eio
 
-#endif  // EDGE_INFERENCE_OPTIMIZER__ROS_TRACE_HPP_
+#endif  // WULUN_DEMO__ROS_TRACE_HPP_

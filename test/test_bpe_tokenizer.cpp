@@ -1,4 +1,4 @@
-// 对照 qwen_probe.txt,检查 C++ BPE 是否和参考 tokenizer 一致。
+// 检查分词和参考结果是不是一样。
 
 #include <gtest/gtest.h>
 
@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "edge_inference_optimizer/bpe_tokenizer.hpp"
+#include "wulun_demo/bpe_tokenizer.hpp"
 
 namespace
 {

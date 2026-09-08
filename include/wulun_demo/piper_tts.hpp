@@ -1,23 +1,23 @@
-// piper TTS。espeak-ng 没有可用的开发头,所以运行时 dlopen。
+// piper 语音合成。espeak 没头文件，运行时加载。
 
-#ifndef EDGE_INFERENCE_OPTIMIZER__PIPER_TTS_HPP_
-#define EDGE_INFERENCE_OPTIMIZER__PIPER_TTS_HPP_
+#ifndef WULUN_DEMO__PIPER_TTS_HPP_
+#define WULUN_DEMO__PIPER_TTS_HPP_
 
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#include "edge_inference_optimizer/onnx_engine.hpp"
+#include "wulun_demo/onnx_engine.hpp"
 
 namespace eio
 {
 
-/// 文本 -> IPA 音素,运行时加载 libespeak-ng
+/// 文本转音素。
 class EspeakPhonemizer
 {
 public:
-  /// lib_path 为 .so 路径,data_path 为 espeak-ng-data 目录;加载失败抛异常
+  /// 加载失败就抛错。
   EspeakPhonemizer(
     const std::string & lib_path, const std::string & data_path, const std::string & voice);
   ~EspeakPhonemizer();
@@ -25,7 +25,7 @@ public:
   EspeakPhonemizer(const EspeakPhonemizer &) = delete;
   EspeakPhonemizer & operator=(const EspeakPhonemizer &) = delete;
 
-  /// 按顺序返回音素,每个音素一个 UTF-8 字符串
+  /// 音素列表。
   std::vector<std::string> phonemize(const std::string & text) const;
 
 private:
@@ -46,7 +46,7 @@ public:
     Backend backend = Backend::kCpu;
     int threads = 4;
 
-    // VITS 采样参数,默认值取自该音色自带的 json
+    // 合成参数，跟音色 json 里的默认值一样。
     float noise_scale = 0.667f;
     float length_scale = 1.0f;      ///< 大于 1 语速变慢
     float noise_w = 0.8f;
@@ -72,7 +72,7 @@ public:
 
   int sample_rate() const { return sample_rate_; }
 
-  /// 写单声道 PCM16 WAV,供 CLI 使用,也用于无声卡机器上留存输出
+  /// 写成 wav。
   static bool write_wav(
     const std::string & path, const std::vector<float> & samples, int sample_rate);
 
@@ -86,4 +86,4 @@ private:
 
 }  // namespace eio
 
-#endif  // EDGE_INFERENCE_OPTIMIZER__PIPER_TTS_HPP_
+#endif  // WULUN_DEMO__PIPER_TTS_HPP_

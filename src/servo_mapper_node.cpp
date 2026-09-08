@@ -1,4 +1,4 @@
-// 表情转舵机指令,固定频率发 /servo_commands。
+// 表情转舵机角度，按固定频率发。
 
 #include <memory>
 #include <string>
@@ -6,10 +6,10 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "edge_inference_optimizer/msg/emotion_result.hpp"
-#include "edge_inference_optimizer/msg/servo_command.hpp"
-#include "edge_inference_optimizer/ros_trace.hpp"
-#include "edge_inference_optimizer/servo_mapper.hpp"
+#include "wulun_demo/msg/emotion_result.hpp"
+#include "wulun_demo/msg/servo_command.hpp"
+#include "wulun_demo/ros_trace.hpp"
+#include "wulun_demo/servo_mapper.hpp"
 
 class ServoMapperNode : public rclcpp::Node
 {
@@ -53,10 +53,10 @@ public:
     }
     if (mapper_.has_pose("neutral")) { mapper_.reset_to(mapper_.target_for("neutral")); }
 
-    pub_ = create_publisher<edge_inference_optimizer::msg::ServoCommand>("/servo_commands", 10);
-    sub_ = create_subscription<edge_inference_optimizer::msg::EmotionResult>(
+    pub_ = create_publisher<wulun_demo::msg::ServoCommand>("/servo_commands", 10);
+    sub_ = create_subscription<wulun_demo::msg::EmotionResult>(
       "/emotion_result", 10,
-      [this](edge_inference_optimizer::msg::EmotionResult::ConstSharedPtr m) {
+      [this](wulun_demo::msg::EmotionResult::ConstSharedPtr m) {
         // 传输延迟在消息到达时采,不要放到 50 Hz 循环里。
         latest_transport_ms_ = eio::transport_ms(rclcpp::Time(m->header.stamp), this->now());
         latest_ = m;
@@ -87,7 +87,7 @@ private:
     const auto & angles = mapper_.step(emotion, dt);
     const double map_ms = eio::ns_to_ms(eio::steady_ns() - t0);
 
-    edge_inference_optimizer::msg::ServoCommand cmd;
+    wulun_demo::msg::ServoCommand cmd;
     cmd.header.stamp = now;
     cmd.header.frame_id = "face";
     cmd.joint_names = mapper_.joint_names();
@@ -127,10 +127,10 @@ private:
     "anger", "disgust", "fear", "contempt"};
 
   eio::ServoMapper mapper_;
-  rclcpp::Publisher<edge_inference_optimizer::msg::ServoCommand>::SharedPtr pub_;
-  rclcpp::Subscription<edge_inference_optimizer::msg::EmotionResult>::SharedPtr sub_;
+  rclcpp::Publisher<wulun_demo::msg::ServoCommand>::SharedPtr pub_;
+  rclcpp::Subscription<wulun_demo::msg::EmotionResult>::SharedPtr sub_;
   rclcpp::TimerBase::SharedPtr timer_;
-  edge_inference_optimizer::msg::EmotionResult::ConstSharedPtr latest_;
+  wulun_demo::msg::EmotionResult::ConstSharedPtr latest_;
   double latest_transport_ms_ = 0.0;
   uint64_t last_traced_id_ = 0;
   rclcpp::Time last_tick_;

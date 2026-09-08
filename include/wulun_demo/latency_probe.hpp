@@ -1,7 +1,7 @@
-// 各节点共用的延迟计时。计算和等待分开记。
+// 记延迟。算的时间和等的时间分开。
 
-#ifndef EDGE_INFERENCE_OPTIMIZER__LATENCY_PROBE_HPP_
-#define EDGE_INFERENCE_OPTIMIZER__LATENCY_PROBE_HPP_
+#ifndef WULUN_DEMO__LATENCY_PROBE_HPP_
+#define WULUN_DEMO__LATENCY_PROBE_HPP_
 
 #include <chrono>
 #include <cstdint>
@@ -30,8 +30,7 @@ struct Stage
   double duration_ms() const { return ns_to_ms(end_ns - start_ns); }
 };
 
-/// 一次数据流经流水线时累积的各阶段耗时。
-/// trace 随消息在节点间传递,终端节点即可还原完整时间线,无需跨节点对时。
+/// 各段延迟。跟着消息走。
 class LatencyTrace
 {
 public:
@@ -53,8 +52,7 @@ public:
 
   void add_stage(const Stage & s) { stages_.push_back(s); }
 
-  /// 从起点到最后一段结束的墙钟跨度。
-  /// 不是各段之和:段之间可能重叠(并行)或有空隙(排队),求和会把排队延迟藏掉。
+  /// 从头到尾的时间，不是简单加起来。中间可能有重叠，也可能在排队。
   double total_ms() const
   {
     int64_t last = origin_ns_;
@@ -88,7 +86,7 @@ private:
   std::vector<Stage> stages_;
 };
 
-/// RAII 计时器,析构时把该段写入 trace。
+/// 作用域结束时把这段时间记进去。
 class ScopedStage
 {
 public:
@@ -103,7 +101,7 @@ public:
   ScopedStage(const ScopedStage &) = delete;
   ScopedStage & operator=(const ScopedStage &) = delete;
 
-  /// 提前结束该段并返回耗时,重复调用无副作用。
+  /// 提前结束并记下耗时。
   double commit()
   {
     if (committed_) { return last_ms_; }
@@ -125,8 +123,7 @@ private:
   double last_ms_ = 0.0;
 };
 
-/// benchmark 用的延迟样本统计。除均值外还给 P95/P99——
-/// 均值好看但每秒卡一次的流水线,人感觉仍然是坏的。
+/// 延迟统计，带 P95/P99。
 class LatencyStats
 {
 public:
@@ -139,7 +136,7 @@ public:
   double stddev() const;
   double min() const;
   double max() const;
-  /// q 取 [0, 1],最近秩法
+  /// 百分位，q 在 0 到 1。
   double percentile(double q) const;
 
 private:
@@ -148,4 +145,4 @@ private:
 
 }  // namespace eio
 
-#endif  // EDGE_INFERENCE_OPTIMIZER__LATENCY_PROBE_HPP_
+#endif  // WULUN_DEMO__LATENCY_PROBE_HPP_

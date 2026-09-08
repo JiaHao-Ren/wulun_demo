@@ -1,4 +1,4 @@
-#include "edge_inference_optimizer/whisper_asr.hpp"
+#include "wulun_demo/whisper_asr.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -8,7 +8,7 @@
 
 #include "opencv2/core.hpp"
 
-#include "edge_inference_optimizer/latency_probe.hpp"
+#include "wulun_demo/latency_probe.hpp"
 
 namespace eio
 {

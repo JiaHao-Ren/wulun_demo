@@ -1,4 +1,4 @@
-# 语音对话和表情识别一起起。
+# 对话和表情一起跑。
 import os
 
 from ament_index_python.packages import get_package_share_directory
@@ -27,7 +27,7 @@ def _espeak_paths():
 
 
 def _haarcascade():
-    # OpenCV 自带的人脸检测 xml
+    # OpenCV 自带的人脸检测文件
     prefix = os.environ.get('CONDA_PREFIX', '/usr')
     for rel in ('share/opencv4/haarcascades', 'share/OpenCV/haarcascades'):
         p = os.path.join(prefix, rel, 'haarcascade_frontalface_default.xml')
@@ -41,7 +41,7 @@ def launch_setup(context, *args, **kwargs):
     source = LaunchConfiguration('source').perform(context)
     camera = LaunchConfiguration('camera').perform(context)
     backend = LaunchConfiguration('backend').perform(context)
-    pkg_share = get_package_share_directory('edge_inference_optimizer')
+    pkg_share = get_package_share_directory('wulun_demo')
 
     espeak_lib, espeak_data = _espeak_paths()
     if not espeak_lib:
@@ -53,7 +53,7 @@ def launch_setup(context, *args, **kwargs):
     nodes = []
 
     nodes.append(Node(
-        package='edge_inference_optimizer', executable='audio_capture_node',
+        package='wulun_demo', executable='audio_capture_node',
         name='audio_capture', output='screen',
         parameters=[{
             'source': source,
@@ -63,7 +63,7 @@ def launch_setup(context, *args, **kwargs):
             'lead_in_silence_ms': 300, 'tail_silence_ms': 1500,
         }]))
     nodes.append(Node(
-        package='edge_inference_optimizer', executable='vad_node',
+        package='wulun_demo', executable='vad_node',
         name='vad_node', output='screen',
         parameters=[{
             'model_path': os.path.join(models, 'silero_vad.onnx'),
@@ -71,7 +71,7 @@ def launch_setup(context, *args, **kwargs):
             'pre_roll_ms': 300.0, 'min_speech_ms': 250.0, 'threads': 1,
         }]))
     nodes.append(Node(
-        package='edge_inference_optimizer', executable='asr_node',
+        package='wulun_demo', executable='asr_node',
         name='asr_node', output='screen',
         parameters=[{
             'model_dir': os.path.join(models, 'whisper_base_onnx'),
@@ -80,7 +80,7 @@ def launch_setup(context, *args, **kwargs):
             'endpoint_wait_ms': LaunchConfiguration('min_silence_ms'),
         }]))
     nodes.append(Node(
-        package='edge_inference_optimizer', executable='llm_node',
+        package='wulun_demo', executable='llm_node',
         name='llm_node', output='screen',
         parameters=[{
             'model_dir': os.path.join(models, 'qwen05b_onnx'),
@@ -89,7 +89,7 @@ def launch_setup(context, *args, **kwargs):
             'history_turns': 3,
         }]))
     nodes.append(Node(
-        package='edge_inference_optimizer', executable='tts_node',
+        package='wulun_demo', executable='tts_node',
         name='tts_node', output='screen',
         parameters=[{
             'model_dir': os.path.join(models, 'piper_zh'),
@@ -99,7 +99,7 @@ def launch_setup(context, *args, **kwargs):
             'dump_dir': LaunchConfiguration('dump_dir'),
         }]))
     nodes.append(Node(
-        package='edge_inference_optimizer', executable='audio_playback_node',
+        package='wulun_demo', executable='audio_playback_node',
         name='audio_playback', output='screen',
         condition=IfCondition(LaunchConfiguration('play_audio'))))
 
@@ -109,22 +109,22 @@ def launch_setup(context, *args, **kwargs):
     else:
         cam_params['video_path'] = LaunchConfiguration('video_path')
     nodes.append(Node(
-        package='edge_inference_optimizer', executable='camera_node',
+        package='wulun_demo', executable='camera_node',
         name='camera_node', output='screen', parameters=[cam_params]))
     nodes.append(Node(
-        package='edge_inference_optimizer', executable='emotion_detector_node',
+        package='wulun_demo', executable='emotion_detector_node',
         name='emotion_detector', output='screen',
         parameters=[{
             'model_path': os.path.join(models, 'emotion-ferplus-8.onnx'),
             'face_cascade': cascade, 'backend': backend, 'threads': 4,
         }]))
     nodes.append(Node(
-        package='edge_inference_optimizer', executable='servo_mapper_node',
+        package='wulun_demo', executable='servo_mapper_node',
         name='servo_mapper', output='screen',
         parameters=[os.path.join(pkg_share, 'config', 'servo_mapping.yaml')]))
 
     nodes.append(Node(
-        package='edge_inference_optimizer', executable='latency_reporter_node',
+        package='wulun_demo', executable='latency_reporter_node',
         name='latency_reporter', output='screen',
         parameters=[{
             'report_period_s': LaunchConfiguration('report_period_s'),

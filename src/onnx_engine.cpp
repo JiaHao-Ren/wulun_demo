@@ -1,11 +1,11 @@
-#include "edge_inference_optimizer/onnx_engine.hpp"
+#include "wulun_demo/onnx_engine.hpp"
 
 #include <algorithm>
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
 
-#include "edge_inference_optimizer/latency_probe.hpp"
+#include "wulun_demo/latency_probe.hpp"
 
 namespace eio
 {

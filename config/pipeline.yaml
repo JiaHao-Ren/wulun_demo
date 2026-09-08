@@ -1,11 +1,11 @@
-# 节点运行参数。threads 要写死，别让视觉把 CPU 占满拖慢音频。
+# 运行参数。线程数写死，别把 CPU 占满。
 
 camera_node:
   ros__parameters:
     fps: 30.0
     width: 640
     height: 480
-    # 目录、视频、设备都空时用合成画面，只能测延迟，不能看表情准不准。
+    # 都不填就用假画面，只能测延迟。
     image_dir: ""
     video_path: ""
     device_id: -1

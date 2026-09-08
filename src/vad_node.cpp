@@ -1,4 +1,4 @@
-// VAD。订 /audio_raw,端点到了把整段发到 /utterance。
+// 判断人说完没。说完了把整段发到 /utterance。
 
 #include <algorithm>
 #include <deque>
@@ -8,11 +8,11 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "edge_inference_optimizer/latency_probe.hpp"
-#include "edge_inference_optimizer/msg/audio_chunk.hpp"
-#include "edge_inference_optimizer/msg/vad_result.hpp"
-#include "edge_inference_optimizer/onnx_engine.hpp"
-#include "edge_inference_optimizer/ros_trace.hpp"
+#include "wulun_demo/latency_probe.hpp"
+#include "wulun_demo/msg/audio_chunk.hpp"
+#include "wulun_demo/msg/vad_result.hpp"
+#include "wulun_demo/onnx_engine.hpp"
+#include "wulun_demo/ros_trace.hpp"
 
 class VadNode : public rclcpp::Node
 {
@@ -25,7 +25,7 @@ public:
     threshold_ = declare_parameter<double>("threshold", 0.5);
     min_silence_ms_ = declare_parameter<double>("min_silence_ms", 800.0);
     min_speech_ms_ = declare_parameter<double>("min_speech_ms", 250.0);
-    // 触发前多带一段音频,否则词头被切掉 Whisper 容易幻觉。
+    // 前面多带一点声音，不然词头会被切掉。
     pre_roll_ms_ = declare_parameter<double>("pre_roll_ms", 300.0);
     min_consec_speech_ = declare_parameter<int>("min_consec_speech_frames", 3);
 
@@ -44,9 +44,9 @@ public:
 
     reset_state();
 
-    pub_vad_ = create_publisher<edge_inference_optimizer::msg::VadResult>("/vad_result", 50);
-    pub_utt_ = create_publisher<edge_inference_optimizer::msg::AudioChunk>("/utterance", 5);
-    sub_ = create_subscription<edge_inference_optimizer::msg::AudioChunk>(
+    pub_vad_ = create_publisher<wulun_demo::msg::VadResult>("/vad_result", 50);
+    pub_utt_ = create_publisher<wulun_demo::msg::AudioChunk>("/utterance", 5);
+    sub_ = create_subscription<wulun_demo::msg::AudioChunk>(
       "/audio_raw", 50,
       std::bind(&VadNode::on_audio, this, std::placeholders::_1));
 
@@ -58,11 +58,11 @@ public:
 private:
   void reset_state()
   {
-    // LSTM 状态跨帧保留,每帧清空准确率会 silently 崩。
+    // 状态要跨帧留着，每帧清掉会不准，而且还不报错。
     state_.assign(2 * 1 * 128, 0.0f);
   }
 
-  void on_audio(const edge_inference_optimizer::msg::AudioChunk::ConstSharedPtr & msg)
+  void on_audio(const wulun_demo::msg::AudioChunk::ConstSharedPtr & msg)
   {
     if (msg->samples.empty() || msg->sample_rate == 0) { return; }
 
@@ -100,7 +100,7 @@ private:
     const bool is_speech = prob >= threshold_;
     advance(is_speech, frame_ms, infer_ms, msg);
 
-    edge_inference_optimizer::msg::VadResult out;
+    wulun_demo::msg::VadResult out;
     out.header.stamp = this->now();
     out.header.frame_id = msg->header.frame_id;
     out.is_speech = is_speech;
@@ -114,7 +114,7 @@ private:
 
   void advance(
     bool is_speech, double frame_ms, double infer_ms,
-    const edge_inference_optimizer::msg::AudioChunk::ConstSharedPtr & msg)
+    const wulun_demo::msg::AudioChunk::ConstSharedPtr & msg)
   {
     fired_this_frame_ = false;
     sample_rate_ = msg->sample_rate;
@@ -177,7 +177,7 @@ private:
 
   void emit_utterance()
   {
-    edge_inference_optimizer::msg::AudioChunk utt;
+    wulun_demo::msg::AudioChunk utt;
     utt.header.stamp = this->now();
     utt.header.frame_id = "utterance";
     utt.samples = buffer_;
@@ -195,9 +195,9 @@ private:
   }
 
   std::unique_ptr<eio::OnnxEngine> engine_;
-  rclcpp::Publisher<edge_inference_optimizer::msg::VadResult>::SharedPtr pub_vad_;
-  rclcpp::Publisher<edge_inference_optimizer::msg::AudioChunk>::SharedPtr pub_utt_;
-  rclcpp::Subscription<edge_inference_optimizer::msg::AudioChunk>::SharedPtr sub_;
+  rclcpp::Publisher<wulun_demo::msg::VadResult>::SharedPtr pub_vad_;
+  rclcpp::Publisher<wulun_demo::msg::AudioChunk>::SharedPtr pub_utt_;
+  rclcpp::Subscription<wulun_demo::msg::AudioChunk>::SharedPtr sub_;
 
   std::vector<float> state_;
   std::vector<float> buffer_;

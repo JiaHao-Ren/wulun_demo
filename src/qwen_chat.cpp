@@ -1,11 +1,11 @@
-#include "edge_inference_optimizer/qwen_chat.hpp"
+#include "wulun_demo/qwen_chat.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <numeric>
 #include <stdexcept>
 
-#include "edge_inference_optimizer/latency_probe.hpp"
+#include "wulun_demo/latency_probe.hpp"
 
 namespace eio
 {

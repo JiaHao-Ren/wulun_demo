@@ -24,14 +24,14 @@ cd <workspace>
 source install/setup.bash
 
 # 回放测试视频
-ros2 launch edge_inference_optimizer full_demo.launch.py \
+ros2 launch wulun_demo full_demo.launch.py \
   models_dir:=/path/to/models \
   source:=file wav_path:=audio.wav \
   camera:=file video_path:=video.mp4 \
   backend:=cuda play_audio:=false loop:=false
 
 # 使用麦克风和摄像头实时对话
-ros2 launch edge_inference_optimizer full_demo.launch.py \
+ros2 launch wulun_demo full_demo.launch.py \
   models_dir:=/path/to/models \
   source:=mic camera:=device backend:=cuda
 ```
@@ -39,8 +39,8 @@ ros2 launch edge_inference_optimizer full_demo.launch.py \
 编译和测试：
 
 ```bash
-colcon build --packages-select edge_inference_optimizer --cmake-args -DCMAKE_BUILD_TYPE=Release
-colcon test --packages-select edge_inference_optimizer
+colcon build --packages-select wulun_demo --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon test --packages-select wulun_demo
 ```
 
 ## 测试数据

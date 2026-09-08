@@ -1,11 +1,11 @@
-// 不经过 ROS 的对话命令行,用来单独查 LLM。
+// 单独测对话，不走 ROS。
 
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "edge_inference_optimizer/qwen_chat.hpp"
+#include "wulun_demo/qwen_chat.hpp"
 
 int main(int argc, char ** argv)
 {

@@ -1,4 +1,4 @@
-// 采音,发 /audio_raw。麦克风和文件回放走同一条下游。
+// 采音，发 /audio_raw。麦克风和文件回放后面一样。
 
 #include <chrono>
 #include <cstdint>
@@ -13,8 +13,8 @@
 #include "portaudio.h"
 #include "rclcpp/rclcpp.hpp"
 
-#include "edge_inference_optimizer/latency_probe.hpp"
-#include "edge_inference_optimizer/msg/audio_chunk.hpp"
+#include "wulun_demo/latency_probe.hpp"
+#include "wulun_demo/msg/audio_chunk.hpp"
 
 namespace
 {
@@ -120,8 +120,7 @@ public:
   AudioCaptureNode()
   : Node("audio_capture")
   {
-    // file 回放 WAV(离线、可复现),mic 打开默认输入设备(机器人上的形态)。
-    // 下游完全一致:同样的消息、速率、分块大小,流水线行为不会因输入源而变。
+    // file 回放文件，mic 用麦克风。后面处理一样。
     source_ = declare_parameter<std::string>("source", "file");
     wav_path_ = declare_parameter<std::string>("wav_path", "");
     chunk_ = declare_parameter<int>("chunk_samples", 512);
@@ -135,7 +134,7 @@ public:
 
     if (source_ == "mic") {
       start_microphone(mic_rate);
-      pub_ = create_publisher<edge_inference_optimizer::msg::AudioChunk>(topic, 50);
+      pub_ = create_publisher<wulun_demo::msg::AudioChunk>(topic, 50);
       timer_ = create_wall_timer(
         std::chrono::duration_cast<std::chrono::nanoseconds>(
           std::chrono::duration<double>(static_cast<double>(chunk_) / mic_rate)),
@@ -162,8 +161,7 @@ public:
       wav_.samples.assign(wav_.sample_rate * 2, 0.0f);
     }
 
-    // Silero VAD 在 16 kHz 上训练,其他采样率必须先重采样;
-    // 采样率不匹配不会报错,只会给出看着合理实则无意义的概率。
+    // VAD 是按 16 kHz 训的，采样率不对不会报错，结果却是错的。
     if (wav_.sample_rate != 16000) {
       RCLCPP_WARN(
         get_logger(), "sample rate is %u Hz, not the 16000 Hz Silero expects; "
@@ -172,7 +170,7 @@ public:
 
     build_stream();
 
-    pub_ = create_publisher<edge_inference_optimizer::msg::AudioChunk>(topic, 50);
+    pub_ = create_publisher<wulun_demo::msg::AudioChunk>(topic, 50);
     const double period = realtime_
       ? static_cast<double>(chunk_) / static_cast<double>(wav_.sample_rate)
       : 0.001;
@@ -251,7 +249,7 @@ private:
       mic_buffer_.erase(mic_buffer_.begin(), mic_buffer_.begin() + chunk_);
     }
 
-    edge_inference_optimizer::msg::AudioChunk msg;
+    wulun_demo::msg::AudioChunk msg;
     msg.header.stamp = this->now();
     msg.header.frame_id = "mic";
     msg.samples = std::move(chunk);
@@ -282,7 +280,7 @@ private:
       ++utterance_;
     }
 
-    edge_inference_optimizer::msg::AudioChunk msg;
+    wulun_demo::msg::AudioChunk msg;
     msg.header.stamp = this->now();
     msg.header.frame_id = "mic";
     msg.samples.assign(stream_.begin() + pos_, stream_.begin() + pos_ + chunk_);
@@ -294,7 +292,7 @@ private:
     pos_ += static_cast<size_t>(chunk_);
   }
 
-  rclcpp::Publisher<edge_inference_optimizer::msg::AudioChunk>::SharedPtr pub_;
+  rclcpp::Publisher<wulun_demo::msg::AudioChunk>::SharedPtr pub_;
   rclcpp::TimerBase::SharedPtr timer_;
   WavData wav_;
   std::vector<float> stream_;
