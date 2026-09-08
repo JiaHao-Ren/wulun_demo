@@ -1,0 +1,11 @@
+build/
+install/
+log/
+.DS_Store
+*.onnx
+*.bin
+*.pt
+*.wav
+__pycache__/
+*.pyc
+.conda/

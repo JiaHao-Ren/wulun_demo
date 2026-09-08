@@ -1,0 +1,22 @@
+# 表情对应的舵机角度，单位度，顺序和 joint_names 一致。
+# 超出限位的会夹住。contempt 左右不对称是故意的。
+
+servo_mapper:
+  ros__parameters:
+    joint_names:  ["left_brow", "right_brow", "left_mouth", "right_mouth", "eyelid"]
+    limits_min:   [0.0,  0.0,  40.0,  40.0,  0.0]
+    limits_max:   [90.0, 90.0, 140.0, 140.0, 100.0]
+
+    rate_hz: 50.0
+    max_speed_deg_per_s: 120.0
+
+    pose:
+      #            l_brow  r_brow  l_mouth  r_mouth  eyelid
+      neutral:   [ 45.0,   45.0,   90.0,    90.0,    50.0 ]
+      happiness: [ 30.0,   30.0,   120.0,   120.0,   80.0 ]
+      surprise:  [ 20.0,   20.0,   110.0,   110.0,   95.0 ]
+      sadness:   [ 60.0,   60.0,   70.0,    70.0,    40.0 ]
+      anger:     [ 70.0,   70.0,   60.0,    60.0,    90.0 ]
+      disgust:   [ 65.0,   65.0,   65.0,    65.0,    60.0 ]
+      fear:      [ 25.0,   25.0,   100.0,   100.0,   95.0 ]
+      contempt:  [ 50.0,   40.0,   100.0,   75.0,    55.0 ]
