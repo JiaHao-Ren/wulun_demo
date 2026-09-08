@@ -4,7 +4,7 @@
 
 这个项目用 ROS 2 + C++ 把语音和表情推理跑在本机，并把每一个部分的延时拆开
 
-开发机：ROS 2 Humble，ONNX Runtime 1.28，RTX 3060。
+开发平台：ROS 2 Humble，ONNX Runtime 1.28，RTX 3060。
 
 演示视频：[docs/ceshi_demo.mp4](docs/ceshi_demo.mp4)
 
